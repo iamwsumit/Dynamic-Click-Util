@@ -16,13 +16,14 @@ import com.google.appinventor.components.runtime.ComponentContainer;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class DynamicClickUtil extends AndroidNonvisibleComponent implements Component {
 
     private final String TAG = "Dynamic Click Util";
     private final HashMap<String, ClickListener> listeners = new HashMap<>();
-    private final HashMap<AndroidViewComponent, ClickListener> components = new HashMap<>();
+    private final ArrayList<AndroidViewComponent> components = new ArrayList<>();
 
     public DynamicClickUtil(ComponentContainer container) {
         super(container.$form());
@@ -41,8 +42,9 @@ public class DynamicClickUtil extends AndroidNonvisibleComponent implements Comp
 
     @SimpleFunction
     public void AddClickListener(AndroidViewComponent component, String id, Object data) {
-        if (!(this.listeners.containsKey(id) || this.components.containsKey(component))) {
+        if (!(this.listeners.containsKey(id) || this.components.contains(component))) {
             this.listeners.put(id, new ClickListener(component, data, id));
+            this.components.add(component);
             Log.i(TAG, "AddClickListener: Click listener added to " + component.toString() + " with id " + id);
         } else
             Log.e(TAG, "AddClickListener: Failed to add click listener");
@@ -55,6 +57,8 @@ public class DynamicClickUtil extends AndroidNonvisibleComponent implements Comp
 
     @SimpleFunction
     public void SetData(String id, Object data) {
+        if (GetData(id) == data)
+            return;
         this.listeners.get(id).data = data;
     }
 
